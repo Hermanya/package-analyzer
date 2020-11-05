@@ -8,8 +8,8 @@
 import fastGlob from "fast-glob";
 import fs from "fs";
 
-const uniq = (items: any[]) =>
-  items.filter((item, index, all) => all.indexOf(item) === index);
+const uniq = (_: any[]) =>
+  _.filter((item, index, all) => all.indexOf(item) === index);
 
 const ignore = ["**/node_modules/**", "**/vendor/**"];
 const root = process.env.PROJECT_ROOT;
@@ -246,4 +246,6 @@ getFileContents(files).then((fileContents: string[]) => {
   console.log(
     `Got metadata of ${bundles.length} packages ready to be uploaded.`
   );
+
+  // projectId, authKey, gitSha, packages
 });
