@@ -1,5 +1,0 @@
-{
-    "tableName": "PackageAnalyzer",
-    "partitionKeyName": "id",
-    "partitionKeyType": "S"
-}

@@ -12,13 +12,7 @@ import express from "express";
 AWS.config.update({ region: process.env.TABLE_REGION });
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
-const s3 = new AWS.S3();
-const Bucket = "package-analyzer";
 
-let tableName = "PackageAnalyzer";
-if (process.env.ENV && process.env.ENV !== "NONE") {
-  tableName = tableName + "-" + process.env.ENV;
-}
 // declare a new express app
 var app = express();
 app.use(bodyParser.json());
@@ -34,94 +28,66 @@ app.use(function(_req, res, next) {
   next();
 });
 
-/********************************
- * HTTP Get method for list objects *
- ********************************/
+app.get("/api", async (req, res) => {
+  try {
+    if (req.query.gitSha) {
+      const data = await dynamodb.get({
+        TableName: "PackageAnalyzerRuns-prod",
 
-// app.get("/metadata", function(_req, res) {
-//   s3.getObject({
-//     Bucket,
-//     Key: ""
-//   });
+        Key: { id: req.query.gitSha }
+      });
+      res.statusCode = 200;
+      res.json({ data });
+    } else {
+      const data = await dynamodb.scan({
+        TableName: "PackageAnalyzerRuns-prod",
+        Limit: 1
+      });
+      res.statusCode = 200;
+      res.json({ data });
+    }
+  } catch (error) {
+    res.statusCode = 500;
+    res.json({ error: error, url: req.url, body: req.body });
+  }
+});
 
-//   dynamodb.query(
-//     {
-//       TableName: tableName
-//     },
-//     (err, data) => {
-//       if (err) {
-//         res.statusCode = 500;
-//         res.json({
-//           error: "Could not load items: " + err
-//         });
-//       } else {
-//         res.json(data.Items);
-//       }
-//     }
-//   );
-// });
-
-// app.get("/api", function(req, res) {
-//   dynamodb.put(
-//     {
-//       TableName: tableName,
-//       Item:
-//     },
-//     (err, data) => {
-//       if (err) {
-//         res.statusCode = 500;
-//         res.json({ error: err, url: req.url, body: req.body });
-//       } else {
-//         res.json({ success: "call succeed! ok", url: req.url, data: data });
-//       }
-//     }
-//   );
-// });
-
-app.post("/api", function(req, res) {
+app.post("/api", async (req, res) => {
   console.log("body: " + JSON.stringify(req.body));
   const { projectId, authKey, gitSha, packages } = req.body;
-  dynamodb.get(
-    {
-      TableName: tableName,
-      Key: { id: projectId }
-    },
-    (err, data) => {
-      console.log("in the callback", err, data);
-      if (err) {
-        res.statusCode = 500;
-        res.json({ error: err, url: req.url, body: req.body });
-      } else if (!data.Item) {
-        res.statusCode = 404;
-        res.json({ error: err, url: req.url, body: req.body });
-      } else if (data.Item.authKey !== authKey) {
-        res.statusCode = 401;
-        res.json({ error: err, url: req.url, body: req.body });
-      } else {
-        const params = {
-          Bucket,
-          Key: `${projectId}-${gitSha}.json`,
-          Body: JSON.stringify(packages),
-          ACL: "public-read"
-        };
-        console.log(params);
 
-        s3.upload(
-          params,
-          (error: Error, data: AWS.S3.ManagedUpload.SendData) => {
-            console.log("in the second callback", err, data);
-            if (error) {
-              res.statusCode = 500;
-              res.json({ error: error, url: req.url, body: req.body });
-            } else {
-              res.statusCode = 200;
-              res.json({ data });
-            }
+  try {
+    const data = await dynamodb
+      .get({
+        TableName: "PackageAnalyzer-prod",
+        Key: { id: projectId }
+      })
+      .promise();
+    if (!data.Item) {
+      res.statusCode = 404;
+      res.json({ error: "Not found", url: req.url, body: req.body });
+    } else if (data.Item.authKey !== authKey) {
+      res.statusCode = 401;
+      res.json({ error: "Not authorized", url: req.url, body: req.body });
+    } else {
+      await dynamodb
+        .put({
+          TableName: "PackageAnalyzerRuns-prod",
+          Item: {
+            id: gitSha,
+            projectId,
+            createdAt: Date.now(),
+            packages
           }
-        );
-      }
+        })
+        .promise();
+      res.statusCode = 200;
+      res.json({ message: "success!" });
     }
-  );
+  } catch (err) {
+    res.statusCode = 500;
+    res.json({ error: err, url: req.url, body: req.body });
+  }
 });
 
 app.listen(3000, function() {
