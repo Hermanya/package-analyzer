@@ -8,6 +8,7 @@ import {
   addTsIgnores,
   addFileSize
 } from "./utils";
+import fetch from "node-fetch";
 
 const collectPackageMetadata = async ({
   root,
