@@ -9,7 +9,15 @@ import {
   addFileSize
 } from "./utils";
 
-const collectPackageMetadata = async ({ root }: { root: string }) => {
+const collectPackageMetadata = async ({
+  root,
+  revision,
+  key
+}: {
+  root: string;
+  revision: string;
+  key: string;
+}) => {
   const ignore = ["**/node_modules/**", "**/vendor/**"];
   if (!root) {
     console.log("Please set COLLECT_PACKAGE_METADATA_FROM");
@@ -20,7 +28,7 @@ const collectPackageMetadata = async ({ root }: { root: string }) => {
     ignore
   });
 
-  const bundles: Bundle[] = fastGlob
+  const packages: Bundle[] = fastGlob
     .sync(`${root}**/package.json`, {
       onlyFiles: true,
       ignore
@@ -56,23 +64,45 @@ const collectPackageMetadata = async ({ root }: { root: string }) => {
 
   getFileContents(files).then((fileContents: string[]) => {
     files.forEach((file, index) => {
-      const bundle = bundles.find(_ => file.startsWith(_.directory));
+      const bundle = packages.find(_ => file.startsWith(_.directory));
       if (!bundle) {
         return;
       }
       const fileContent = fileContents[index];
-      addDependencies(file, fileContent, bundle, bundles);
+      addDependencies(file, fileContent, bundle, packages);
       addFileSize(file, Buffer.byteLength(fileContents[index], "utf8"), bundle);
       addTsIgnores(fileContent, bundle);
     });
 
-    addDependents(bundles);
+    addDependents(packages);
 
     console.log(
-      `Got metadata of ${bundles.length} packages ready to be uploaded.`
+      `Got metadata of ${packages.length} packages ready to be uploaded.`
     );
 
     // projectId, authKey, gitSha, packages
+
+    fetch(
+      "https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev/metadata",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          key,
+          revision,
+          packages
+        })
+      }
+    )
+      .then(_ => _.json())
+      .then(() => {
+        console.log("Metadata uploaded!");
+      })
+      .catch(error => {
+        console.error(`Failed to upload metadata: ${error}`);
+      });
   });
 };
 
