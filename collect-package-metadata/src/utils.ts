@@ -1,95 +1,16 @@
-// export const sum = (a: number, b: number) => {
-//   if ('development' === process.env.NODE_ENV) {
-//     console.log('boop');
-//   }
-//   return a + b;
-// };
-
-import fastGlob from "fast-glob";
 import fs from "fs";
+import { Bundle } from "./types";
 
 const uniq = (_: any[]) =>
   _.filter((item, index, all) => all.indexOf(item) === index);
 
-const ignore = ["**/node_modules/**", "**/vendor/**"];
-const root = process.env.PROJECT_ROOT;
-const files: string[] = fastGlob.sync(`${root}**/*.(jsx|tsx|js|ts|styl)`, {
-  onlyFiles: true,
-  ignore
-});
-
-const tryCatch = (_: () => void) => {
+export const tryCatch = (_: () => void) => {
   try {
     return _();
   } catch (e) {}
 };
 
-type Bundle = {
-  packageJson: {};
-  tsconfig: {} | void;
-  directory: string;
-  importName: string;
-  sourceFileSize: number;
-  sourceFileSizePerLanguage: {
-    js: number;
-    jsx: number;
-    ts: number;
-    tsx: number;
-    styl: number;
-  };
-  testFilesSize: number;
-  testFileSizePerLanguage: { js: number; jsx: number; ts: number; tsx: number };
-  storyFilesSize: number;
-  storyFileSizePerLanguage: {
-    js: number;
-    jsx: number;
-    ts: number;
-    tsx: number;
-  };
-  fixtureFilesSize: number;
-  mockFilesSize: number;
-  dependencies: string[];
-  dependents: string[];
-  tsIgnores: number;
-  tsExpectErrors: number;
-  tsFixMes: number;
-};
-
-const bundles: Bundle[] = fastGlob
-  .sync(`${root}**/package.json`, {
-    onlyFiles: true,
-    ignore
-  })
-  .map((packageLocation: string) => {
-    const directory =
-      packageLocation
-        .split("/")
-        .slice(0, -1)
-        .join("/") + "/";
-    return {
-      packageJson: require(packageLocation),
-      tsconfig: tryCatch(() =>
-        require(packageLocation.replace("package.json", "tsconfig.json"))
-      ),
-      directory,
-      importName: directory.split("/static/")[1].slice(0, -1),
-      sourceFileSize: 0,
-      sourceFileSizePerLanguage: { js: 0, jsx: 0, ts: 0, tsx: 0, styl: 0 },
-      testFilesSize: 0,
-      testFileSizePerLanguage: { js: 0, jsx: 0, ts: 0, tsx: 0 },
-      storyFilesSize: 0,
-      storyFileSizePerLanguage: { js: 0, jsx: 0, ts: 0, tsx: 0 },
-      fixtureFilesSize: 0,
-      mockFilesSize: 0,
-      dependencies: [],
-      dependents: [],
-      tsIgnores: 0,
-      tsExpectErrors: 0,
-      tsFixMes: 0
-    };
-  });
-
-const getFileContents = (fileNames: string[]) => {
+export const getFileContents = (fileNames: string[]) => {
   return Promise.all(
     fileNames.map(
       _ =>
@@ -113,7 +34,7 @@ const isStory = (file: string) => file.match(/__stories__/);
 const isFixture = (file: string) => file.match(/__fixtures__/);
 const isMock = (file: string) => file.match(/__mocks__/);
 
-const addFileSize = (file: string, fileSize: number, bundle: Bundle) => {
+export const addFileSize = (file: string, fileSize: number, bundle: Bundle) => {
   const extension = file.split(".").pop() as "js" | "ts";
   if (isTest(file)) {
     bundle.testFilesSize += fileSize;
@@ -155,7 +76,7 @@ const exceptions = [
   "bundles/design-system",
   "bundles/translation"
 ];
-const resolveBundle = (importPath: string) => {
+const resolveBundle = (bundles: Bundle[], importPath: string) => {
   const exception = exceptions.find(
     _ => _ === importPath || importPath.startsWith(_ + "/")
   );
@@ -172,7 +93,12 @@ const resolveBundle = (importPath: string) => {
   return bundle.importName;
 };
 
-const addDependencies = (file: string, fileContent: string, bundle: Bundle) => {
+export const addDependencies = (
+  file: string,
+  fileContent: string,
+  bundle: Bundle,
+  bundles: Bundle[]
+) => {
   if (!isStory(file) && !isTest(file)) {
     const fr = " fr";
     const om = "om '";
@@ -180,7 +106,7 @@ const addDependencies = (file: string, fileContent: string, bundle: Bundle) => {
       .split(fr + om)
       .slice(1)
       .map(_ => _.split("'")[0])
-      .map(_ => (_.startsWith("bundles/") ? resolveBundle(_) : _))
+      .map(_ => (_.startsWith("bundles/") ? resolveBundle(bundles, _) : _))
       .filter(_ => !_.startsWith("."));
     const imp = " imp";
     const ort = "ort('";
@@ -188,7 +114,7 @@ const addDependencies = (file: string, fileContent: string, bundle: Bundle) => {
       .split(imp + ort)
       .slice(1)
       .map(_ => _.split("')")[0])
-      .map(_ => (_.startsWith("bundles/") ? resolveBundle(_) : _))
+      .map(_ => (_.startsWith("bundles/") ? resolveBundle(bundles, _) : _))
       .filter(_ => !_.startsWith("."));
     [...dependencies, ...dynamicDependencies].forEach(dependency => {
       if (dependency.length > 100) {
@@ -203,7 +129,7 @@ const addDependencies = (file: string, fileContent: string, bundle: Bundle) => {
   }
 };
 
-const addDependents = () => {
+export const addDependents = (bundles: Bundle[]) => {
   bundles.forEach(bundle => {
     const dependents = bundles.reduce((all, anotherBundle) => {
       if (
@@ -218,7 +144,7 @@ const addDependents = () => {
   });
 };
 
-const addTsIgnores = (fileContent: string, bundle: Bundle) => {
+export const addTsIgnores = (fileContent: string, bundle: Bundle) => {
   const ts = "@ts-";
   const ignore = "ignore";
   const expectError = "expect-error";
@@ -228,24 +154,3 @@ const addTsIgnores = (fileContent: string, bundle: Bundle) => {
   const me = "Me";
   bundle.tsFixMes += fileContent.split(tsfix + me).length - 1;
 };
-
-getFileContents(files).then((fileContents: string[]) => {
-  files.forEach((file, index) => {
-    const bundle = bundles.find(_ => file.startsWith(_.directory));
-    if (!bundle) {
-      return;
-    }
-    const fileContent = fileContents[index];
-    addDependencies(file, fileContent, bundle);
-    addFileSize(file, Buffer.byteLength(fileContents[index], "utf8"), bundle);
-    addTsIgnores(fileContent, bundle);
-  });
-
-  addDependents();
-
-  console.log(
-    `Got metadata of ${bundles.length} packages ready to be uploaded.`
-  );
-
-  // projectId, authKey, gitSha, packages
-});
