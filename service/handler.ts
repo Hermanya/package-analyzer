@@ -90,8 +90,8 @@ export const getLatestMetadata: APIGatewayProxyHandler = async (
     const data = await s3
       .getObject({
         Bucket: process.env.BUCKET,
-        Key: `${event.pathParameters.projectId}-${event.pathParameters
-          .revision || "latest"}.json`
+        Key: `${event.pathParameters.key}-${event.pathParameters.revision ||
+          "latest"}.json`
       })
       .promise();
 
