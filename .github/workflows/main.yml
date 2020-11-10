@@ -23,13 +23,13 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Lint
-        working-directory: client-lib
+        working-directory: collect-package-metadata
         run: yarn lint
 
       - name: Test
-        working-directory: client-lib
+        working-directory: collect-package-metadata
         run: yarn test --ci --coverage --maxWorkers=2
 
       - name: Build
-        working-directory: client-lib
+        working-directory: collect-package-metadata
         run: yarn build
