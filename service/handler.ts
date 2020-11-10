@@ -19,31 +19,7 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
     })
     .promise();
 
-  if (Item) {
-    const Body = { packages };
-    await Promise.all([
-      s3
-        .putObject({
-          Bucket,
-          Key: `${revision}.json`,
-          Body
-        })
-        .promise(),
-      s3
-        .putObject({
-          Bucket,
-          Key: `latest.json`,
-          Body
-        })
-        .promise()
-    ]);
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "Big Success!"
-      })
-    };
-  } else {
+  if (!Item) {
     return {
       statusCode: 404,
       body: JSON.stringify({
@@ -51,6 +27,29 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       })
     };
   }
+  const Body = JSON.stringify({ packages });
+  await Promise.all([
+    s3
+      .putObject({
+        Bucket,
+        Key: `${key}-${revision}.json`,
+        Body
+      })
+      .promise(),
+    s3
+      .putObject({
+        Bucket,
+        Key: `${key}-latest.json`,
+        Body
+      })
+      .promise()
+  ]);
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: "Big Success!"
+    })
+  };
 };
 
 export const createProject: APIGatewayProxyHandler = async (
@@ -82,7 +81,8 @@ export const getLatestMetadata: APIGatewayProxyHandler = async (
     const data = await s3
       .getObject({
         Bucket: process.env.BUCKET,
-        Key: "latest.json"
+        Key: `${event.pathParameters.key}-${event.pathParameters.revision ||
+          "latest"}.json`
       })
       .promise();
 
@@ -96,7 +96,8 @@ export const getLatestMetadata: APIGatewayProxyHandler = async (
         statusCode: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Credentials": true
+          "Access-Control-Allow-Credentials": true,
+          "Content-Type": "application/json"
         },
         body: data.Body.toString("utf-8")
       };
