@@ -8,13 +8,13 @@ const dynamoDb = new DynamoDB.DocumentClient();
 const Bucket = process.env.BUCKET;
 
 export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
-  const { key, revision, packages } = JSON.parse(event.body);
+  const { projectId, secret, revision, packages } = JSON.parse(event.body);
 
   const { Item } = await dynamoDb
     .get({
       TableName: process.env.DYNAMODB_TABLE,
       Key: {
-        id: key
+        id: projectId
       }
     })
     .promise();
@@ -23,7 +23,15 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
     return {
       statusCode: 404,
       body: JSON.stringify({
-        error: "Invalid key!"
+        error: "Invalid projectId!"
+      })
+    };
+  }
+  if (Item.secret !== secret) {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({
+        error: "Invalid secret!"
       })
     };
   }
@@ -32,14 +40,14 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
     s3
       .putObject({
         Bucket,
-        Key: `${key}-${revision}.json`,
+        Key: `${projectId}-${revision}.json`,
         Body
       })
       .promise(),
     s3
       .putObject({
         Bucket,
-        Key: `${key}-latest.json`,
+        Key: `${projectId}-latest.json`,
         Body
       })
       .promise()
@@ -61,6 +69,7 @@ export const createProject: APIGatewayProxyHandler = async (
       TableName: process.env.DYNAMODB_TABLE,
       Item: {
         id: uuidv4(),
+        secret: uuidv4(),
         slug: "coursera",
         createdAt: Date.now(),
         updatedAt: Date.now()
@@ -81,8 +90,8 @@ export const getLatestMetadata: APIGatewayProxyHandler = async (
     const data = await s3
       .getObject({
         Bucket: process.env.BUCKET,
-        Key: `${event.pathParameters.key}-${event.pathParameters.revision ||
-          "latest"}.json`
+        Key: `${event.pathParameters.projectId}-${event.pathParameters
+          .revision || "latest"}.json`
       })
       .promise();
 

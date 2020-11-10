@@ -15,11 +15,13 @@ const collectPackageMetadata = require('collect-package-metadata')
 collectPackageMetadata({
   root, // absolute path to the directory with packages
   revision, // git sha
-  key, // project key
+  projectId, // there is currently no way to create new projects
+  secret,
 })
 // this script will go over the `root` directory 
 // in search of `package.json`s and other metadata 
-// and upload its findings onto server under this project's `key` and `revision`
+// and upload its findings onto server under this project's `projectId` and `revision`
+// if `secret` matches what's in the database
 ```
 
 ## `service` backend
@@ -35,9 +37,9 @@ cd sevice; serverless deploy
 
 and then set up the `PACKAGE_ANALYZER_BACKEND` environment variable.
 
-Get latest metadata by calling `GET https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev/metadata/:key`. 
+Get latest metadata by calling `GET https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev/metadata/:projectId`. 
 
-Or if you want to see metadata at a certain revision, call `GET https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev/metadata/:key/:revision`
+Or if you want to see metadata at a certain revision, call `GET https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev/metadata/:projectId/:revision`
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

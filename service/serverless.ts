@@ -75,14 +75,14 @@ const serverlessConfiguration: Serverless = {
           http: {
             cors: true,
             method: "get",
-            path: "metadata/{key}"
+            path: "metadata/{projectId}"
           }
         },
         {
           http: {
             cors: true,
             method: "get",
-            path: "metadata/{key}/{revision}"
+            path: "metadata/{projectId}/{revision}"
           }
         }
       ]

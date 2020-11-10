@@ -13,11 +13,13 @@ import fetch from "node-fetch";
 const collectPackageMetadata = async ({
   root,
   revision,
-  key
+  projectId,
+  secret
 }: {
   root: string;
   revision: string;
-  key: string;
+  projectId: string;
+  secret: string;
 }) => {
   const ignore = ["**/node_modules/**", "**/vendor/**"];
   if (!root) {
@@ -91,7 +93,8 @@ const collectPackageMetadata = async ({
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        key,
+        projectId,
+        secret,
         revision,
         packages
       })
