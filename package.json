@@ -1,4 +1,4 @@
 {
   "private": true,
-  "workspaces": ["client-lib", "server"]
+  "workspaces": ["collect-package-metadata", "service"]
 }
