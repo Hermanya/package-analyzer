@@ -81,22 +81,21 @@ const collectPackageMetadata = async ({
       `Got metadata of ${packages.length} packages ready to be uploaded.`
     );
 
-    // projectId, authKey, gitSha, packages
+    const backend =
+      process.env.PACKAGE_ANALYZER_BACKEND ||
+      "https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev";
 
-    fetch(
-      "https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev/metadata",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          key,
-          revision,
-          packages
-        })
-      }
-    )
+    fetch(`${backend}/metadata`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key,
+        revision,
+        packages
+      })
+    })
       .then(_ => _.json())
       .then(() => {
         console.log("Metadata uploaded!");
