@@ -48,7 +48,7 @@ const collectPackageMetadata = async ({
           require(packageLocation.replace("package.json", "tsconfig.json"))
         ),
         directory,
-        importName: directory.split("/static/")[1].slice(0, -1),
+        importName: (directory.split("/static/")[1] || "").slice(0, -1),
         sourceFileSize: 0,
         sourceFileSizePerLanguage: { js: 0, jsx: 0, ts: 0, tsx: 0, styl: 0 },
         testFilesSize: 0,
@@ -64,8 +64,7 @@ const collectPackageMetadata = async ({
         tsFixMes: 0
       };
     });
-
-  getFileContents(files).then((fileContents: string[]) => {
+  return getFileContents(files).then((fileContents: string[]) => {
     files.forEach((file, index) => {
       const bundle = packages.find(_ => file.startsWith(_.directory));
       if (!bundle) {
@@ -87,7 +86,7 @@ const collectPackageMetadata = async ({
       process.env.PACKAGE_ANALYZER_BACKEND ||
       "https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev";
 
-    fetch(`${backend}/metadata`, {
+    return fetch(`${backend}/metadata`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

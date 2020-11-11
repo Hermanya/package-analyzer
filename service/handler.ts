@@ -9,7 +9,7 @@ const Bucket = process.env.BUCKET;
 
 export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
   const { projectId, secret, revision, packages } = JSON.parse(event.body);
-
+  console.log("here ", projectId, !!secret, revision);
   const { Item } = await dynamoDb
     .get({
       TableName: process.env.DYNAMODB_TABLE,
@@ -27,6 +27,8 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       })
     };
   }
+  console.log("new revision " + revision);
+
   if (Item.secret !== secret) {
     return {
       statusCode: 403,
@@ -35,6 +37,7 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       })
     };
   }
+  console.log("passed the secret");
   const Body = JSON.stringify({ packages });
   await Promise.all([
     s3
