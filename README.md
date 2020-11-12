@@ -1,4 +1,4 @@
-# Package Analyzer
+# Package Analyzer ![CI](https://github.com/Hermanya/package-analyzer/workflows/CI/badge.svg)
 
 This is a 2-part project:
 - `collect-package-metadata`: npm package that goes over your frontend packages and collects some metadata
