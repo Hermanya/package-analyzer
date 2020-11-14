@@ -19,17 +19,34 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install deps and build (with cache)
-        uses: bahmutov/npm-install@v1
+      - name: Install collect-package-metadata
+        working-directory: collect-package-metadata
+        run: yarn install
 
-      - name: Lint
+      - name: Lint collect-package-metadata
         working-directory: collect-package-metadata
         run: yarn lint
 
-      - name: Test
+      - name: Test collect-package-metadata
         working-directory: collect-package-metadata
         run: yarn test --ci --coverage --maxWorkers=2
 
-      - name: Build
+      - name: Build collect-package-metadata
+        working-directory: collect-package-metadata
+        run: yarn build
+
+      - name: Install service
+        working-directory: service
+        run: yarn install
+
+      - name: Lint service
+        working-directory: service
+        run: yarn lint
+
+      - name: Test service
+        working-directory: service
+        run: yarn test --ci --coverage --maxWorkers=2
+
+      - name: Build service
         working-directory: collect-package-metadata
         run: yarn build

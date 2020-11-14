@@ -1,4 +1,0 @@
-{
-  "private": true,
-  "workspaces": ["collect-package-metadata", "service"]
-}
