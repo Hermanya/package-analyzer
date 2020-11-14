@@ -1,16 +1,14 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
-import { S3, DynamoDB } from "aws-sdk";
+import * as AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
 
-const s3 = new S3();
-const dynamoDb = new DynamoDB.DocumentClient();
-const Bucket = process.env.BUCKET;
-
 export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
+  const s3 = new AWS.S3();
+  const dynamoDb = new AWS.DynamoDB.DocumentClient();
+  const Bucket = process.env.BUCKET;
   const { projectId, secret, revision, packages } = JSON.parse(event.body);
-  console.log("here ", projectId, !!secret, revision);
-  const { Item } = await dynamoDb
+  const response = await dynamoDb
     .get({
       TableName: process.env.DYNAMODB_TABLE,
       Key: {
@@ -18,7 +16,7 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       }
     })
     .promise();
-
+  const { Item } = response;
   if (!Item) {
     return {
       statusCode: 404,
@@ -27,8 +25,6 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       })
     };
   }
-  console.log("new revision " + revision);
-
   if (Item.secret !== secret) {
     return {
       statusCode: 403,
@@ -37,7 +33,6 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       })
     };
   }
-  console.log("passed the secret");
   const Body = JSON.stringify({ packages });
   await Promise.all([
     s3
@@ -67,6 +62,7 @@ export const createProject: APIGatewayProxyHandler = async (
   _event,
   _context
 ) => {
+  const dynamoDb = new AWS.DynamoDB.DocumentClient();
   await dynamoDb
     .put({
       TableName: process.env.DYNAMODB_TABLE,
@@ -90,6 +86,7 @@ export const getLatestMetadata: APIGatewayProxyHandler = async (
   _context
 ) => {
   try {
+    const s3 = new AWS.S3();
     const data = await s3
       .getObject({
         Bucket: process.env.BUCKET,

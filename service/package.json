@@ -4,10 +4,10 @@
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tsdx test",
+    "lint": "tsdx lint"
   },
   "dependencies": {
-    "@types/uuid": "^8.3.0",
     "aws-sdk": "^2.786.0",
     "source-map-support": "^0.5.10",
     "uuid": "^8.3.1"
@@ -16,10 +16,13 @@
     "@types/aws-lambda": "^8.10.17",
     "@types/node": "^10.12.18",
     "@types/serverless": "^1.72.5",
+    "@types/uuid": "^8.3.0",
+    "aws-sdk-mock": "^5.1.0",
     "fork-ts-checker-webpack-plugin": "^3.0.1",
     "serverless-webpack": "^5.2.0",
     "ts-loader": "^5.3.3",
     "ts-node": "^8.10.2",
+    "tsdx": "^0.14.1",
     "typescript": "^3.2.4",
     "webpack": "^4.29.0",
     "webpack-node-externals": "^1.7.2"
