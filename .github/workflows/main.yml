@@ -2,13 +2,14 @@ name: CI
 on: [push]
 jobs:
   build:
-    name: Build, lint, and test on Node ${{ matrix.node }} and ${{ matrix.os }}
+    name: Build, lint, and test ${{ matrix.project }} on Node ${{ matrix.node }} and ${{ matrix.os }}
 
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node: ['10.x']
         os: [macOS-latest]
+        project: ['collect-package-metadata', 'service']
 
     steps:
       - name: Checkout repo
@@ -19,34 +20,18 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install collect-package-metadata
-        working-directory: collect-package-metadata
+      - name: Install ${{ matrix.project }}
+        working-directory: ${{ matrix.project }}
         run: yarn install
 
-      - name: Lint collect-package-metadata
-        working-directory: collect-package-metadata
+      - name: Lint ${{ matrix.project }}
+        working-directory: ${{ matrix.project }}
         run: yarn lint
 
-      - name: Test collect-package-metadata
-        working-directory: collect-package-metadata
+      - name: Test ${{ matrix.project }}
+        working-directory: ${{ matrix.project }}
         run: yarn test --ci --coverage --maxWorkers=2
 
-      - name: Build collect-package-metadata
-        working-directory: collect-package-metadata
-        run: yarn build
-
-      - name: Install service
-        working-directory: service
-        run: yarn install
-
-      - name: Lint service
-        working-directory: service
-        run: yarn lint
-
-      - name: Test service
-        working-directory: service
-        run: yarn test --ci --coverage --maxWorkers=2
-
-      - name: Build service
-        working-directory: collect-package-metadata
+      - name: Build ${{ matrix.project }}
+        working-directory: ${{ matrix.project }}
         run: yarn build
