@@ -8,7 +8,12 @@ describe("collect-package-metadata", () => {
     mockFetch.mockResolvedValue({
       json: () => Promise.resolve()
     });
-    const root = __dirname + "/mock/";
+    const root = __dirname
+      .split("/")
+      .slice(0, -2)
+      .concat("")
+      .join("/");
+    console.log(root);
     await collectPackageMetadata({
       root,
       revision: "sha",
@@ -16,6 +21,7 @@ describe("collect-package-metadata", () => {
       secret: "verySecret"
     });
     expect(mockFetch.mock.calls.length).toBe(1);
-    expect(JSON.parse(mockFetch.mock.calls[0][1].body).packages.length).toBe(2);
+    const result = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(result.packages.length).toBe(2);
   });
 });
