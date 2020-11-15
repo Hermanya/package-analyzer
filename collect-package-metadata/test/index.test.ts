@@ -13,6 +13,7 @@ describe("collect-package-metadata", () => {
     await collectPackageMetadata({
       root,
       revision: "sha",
+      ref: "ref",
       projectId: "testProject",
       secret: "verySecret"
     });
