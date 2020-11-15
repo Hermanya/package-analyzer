@@ -3,9 +3,13 @@
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "bin": {
+    "collect-package-metadata": "bin/cli.js"
+  },
   "files": [
     "dist",
-    "src"
+    "src",
+    "bin"
   ],
   "engines": {
     "node": ">=10"

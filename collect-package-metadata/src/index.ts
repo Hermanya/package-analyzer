@@ -13,11 +13,13 @@ import fetch from "node-fetch";
 const collectPackageMetadata = async ({
   root,
   revision,
+  ref,
   projectId,
   secret
 }: {
   root: string;
   revision: string;
+  ref: string;
   projectId: string;
   secret: string;
 }) => {
@@ -95,6 +97,7 @@ const collectPackageMetadata = async ({
         projectId,
         secret,
         revision,
+        ref,
         packages
       })
     })
