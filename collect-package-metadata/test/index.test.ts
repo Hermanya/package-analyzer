@@ -1,3 +1,4 @@
+import path from "path";
 import collectPackageMetadata from "../src/index";
 import fetch from "node-fetch";
 jest.mock("node-fetch");
@@ -8,12 +9,7 @@ describe("collect-package-metadata", () => {
     mockFetch.mockResolvedValue({
       json: () => Promise.resolve()
     });
-    const root = __dirname
-      .split("/")
-      .slice(0, -2)
-      .concat("")
-      .join("/");
-    console.log(root);
+    const root = path.resolve(__dirname, "..", "..") + path.sep;
     await collectPackageMetadata({
       root,
       revision: "sha",
@@ -22,6 +18,6 @@ describe("collect-package-metadata", () => {
     });
     expect(mockFetch.mock.calls.length).toBe(1);
     const result = JSON.parse(mockFetch.mock.calls[0][1].body);
-    expect(result.packages.length).toBe(2);
+    expect(result.packages.length).toBe(3);
   });
 });
