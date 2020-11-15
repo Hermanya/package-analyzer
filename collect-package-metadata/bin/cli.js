@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 👆 Used to tell Node.js that this is a CLI tool
 
-const collectPackageMetadata = require("../dist");
+const collectPackageMetadata = require("../dist").default;
 
 const {
   PACKAGE_ANALYZER_ROOT: root,
