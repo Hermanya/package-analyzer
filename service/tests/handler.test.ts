@@ -1,4 +1,4 @@
-import { getLatestMetadata, postMetadata } from "../handler";
+import { getLatestMetadata, postMetadata } from "../src";
 import * as AWSMock from "aws-sdk-mock";
 import * as AWS from "aws-sdk";
 import { GetItemInput } from "aws-sdk/clients/dynamodb";
