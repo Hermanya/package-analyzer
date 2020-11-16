@@ -30,7 +30,7 @@ jobs:
 
       - name: Test ${{ matrix.project }}
         working-directory: ${{ matrix.project }}
-        run: yarn test --ci --coverage --maxWorkers=2
+        run: yarn test --ci --coverage --maxWorkers=2; bash <(curl -s https://codecov.io/bash)
 
       - name: Build ${{ matrix.project }}
         working-directory: ${{ matrix.project }}
