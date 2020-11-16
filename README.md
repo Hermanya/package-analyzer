@@ -1,8 +1,8 @@
 # Package Analyzer ![CI](https://github.com/Hermanya/package-analyzer/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/Hermanya/package-analyzer/branch/master/graph/badge.svg)](https://codecov.io/gh/Hermanya/package-analyzer)
 
 This is a 2-part project:
-- `collect-package-metadata`: npm package that goes over your frontend packages and collects some metadata
-- `service`: serverless backend that holds on to this metadata and lets you fetch it later
+- `packages/cli`: `collect-package-metadata` npm package that goes over your frontend packages and collects some metadata
+- `packages/api`: `serverless` backend that holds on to this metadata and lets you fetch it later
 
 
 ## `collect-package-metadata` NPM package

@@ -9,7 +9,7 @@ jobs:
       matrix:
         node: ['10.x']
         os: [macOS-latest]
-        project: ['collect-package-metadata', 'service']
+        project: ['packages/cli', 'packages/api']
 
     steps:
       - name: Checkout repo

@@ -1,9 +1,9 @@
 flags:
   cli:
     paths:
-      - ./collect-package-metadata/
+      - ./packages/cli/
     carryforward: true
-  service:
+  api:
     paths:
-      - ./service/
+      - ./packages/api/
     carryforward: true
