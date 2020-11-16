@@ -1,6 +1,6 @@
 export type Bundle = {
-  packageJson: {};
-  tsconfig: {} | void;
+  packageJson: Record<string, unknown>;
+  tsconfig: Record<string, unknown> | void;
   directory: string;
   importName: string;
   sourceFileSize: number;

@@ -1,21 +1,21 @@
-import fs from "fs";
-import { Bundle } from "./types";
+import fs from 'fs';
+import { Bundle } from './types';
 
-const uniq = (_: any[]) =>
+const uniq = (_: unknown[]) =>
   _.filter((item, index, all) => all.indexOf(item) === index);
 
-export const tryCatch = (_: () => void) => {
+export const tryCatch = (_: () => void): void => {
   try {
     return _();
-  } catch (e) {}
+  } catch (e) { }
 };
 
-export const getFileContents = (fileNames: string[]) => {
+export const getFileContents = async (fileNames: string[]): Promise<string[]> => {
   return Promise.all(
     fileNames.map(
       _ =>
         new Promise<string>(resolve => {
-          fs.readFile(_, "utf8", function(
+          fs.readFile(_, 'utf8', function (
             error: NodeJS.ErrnoException | null,
             data: string
           ) {
@@ -34,8 +34,8 @@ const isStory = (file: string) => file.match(/__stories__/);
 const isFixture = (file: string) => file.match(/__fixtures__/);
 const isMock = (file: string) => file.match(/__mocks__/);
 
-export const addFileSize = (file: string, fileSize: number, bundle: Bundle) => {
-  const extension = file.split(".").pop() as "js" | "ts";
+export const addFileSize = (file: string, fileSize: number, bundle: Bundle): void => {
+  const extension = file.split('.').pop() as 'js' | 'ts';
   if (isTest(file)) {
     bundle.testFilesSize += fileSize;
     if (bundle.testFileSizePerLanguage[extension] === undefined) {
@@ -68,24 +68,24 @@ export const addFileSize = (file: string, fileSize: number, bundle: Bundle) => {
 };
 
 const exceptions = [
-  "bundles/vendor",
-  "bundles/enterprise-admin-constants",
-  "bundles/userModal",
-  "bundles/final-form",
-  "bundles/author-workspace",
-  "bundles/design-system",
-  "bundles/translation"
+  'bundles/vendor',
+  'bundles/enterprise-admin-constants',
+  'bundles/userModal',
+  'bundles/final-form',
+  'bundles/author-workspace',
+  'bundles/design-system',
+  'bundles/translation'
 ];
 const resolveBundle = (bundles: Bundle[], importPath: string) => {
   const exception = exceptions.find(
-    _ => _ === importPath || importPath.startsWith(_ + "/")
+    _ => _ === importPath || importPath.startsWith(_ + '/')
   );
   if (exception) {
     return exception;
   }
   const bundle = bundles.find(
     _ =>
-      _.importName === importPath || importPath.startsWith(_.importName + "/")
+      _.importName === importPath || importPath.startsWith(_.importName + '/')
   );
   if (!bundle) {
     throw Error(`Bundle not resolved: ${importPath}`);
@@ -98,24 +98,24 @@ export const addDependencies = (
   fileContent: string,
   bundle: Bundle,
   bundles: Bundle[]
-) => {
+): void => {
   if (!isStory(file) && !isTest(file)) {
-    const fr = " fr";
+    const fr = ' fr';
     const om = "om '";
     const dependencies = fileContent
       .split(fr + om)
       .slice(1)
       .map(_ => _.split("'")[0])
-      .map(_ => (_.startsWith("bundles/") ? resolveBundle(bundles, _) : _))
-      .filter(_ => !_.startsWith("."));
-    const imp = " imp";
+      .map(_ => (_.startsWith('bundles/') ? resolveBundle(bundles, _) : _))
+      .filter(_ => !_.startsWith('.'));
+    const imp = ' imp';
     const ort = "ort('";
     const dynamicDependencies = fileContent
       .split(imp + ort)
       .slice(1)
       .map(_ => _.split("')")[0])
-      .map(_ => (_.startsWith("bundles/") ? resolveBundle(bundles, _) : _))
-      .filter(_ => !_.startsWith("."));
+      .map(_ => (_.startsWith('bundles/') ? resolveBundle(bundles, _) : _))
+      .filter(_ => !_.startsWith('.'));
     [...dependencies, ...dynamicDependencies].forEach(dependency => {
       if (dependency.length > 100) {
         throw Error(`Dependency too long: ${dependency}`);
@@ -129,7 +129,7 @@ export const addDependencies = (
   }
 };
 
-export const addDependents = (bundles: Bundle[]) => {
+export const addDependents = (bundles: Bundle[]): void => {
   bundles.forEach(bundle => {
     const dependents = bundles.reduce((all, anotherBundle) => {
       if (
@@ -144,13 +144,13 @@ export const addDependents = (bundles: Bundle[]) => {
   });
 };
 
-export const addTsIgnores = (fileContent: string, bundle: Bundle) => {
-  const ts = "@ts-";
-  const ignore = "ignore";
-  const expectError = "expect-error";
+export const addTsIgnores = (fileContent: string, bundle: Bundle): void => {
+  const ts = '@ts-';
+  const ignore = 'ignore';
+  const expectError = 'expect-error';
   bundle.tsIgnores += fileContent.split(ts + ignore).length - 1;
   bundle.tsExpectErrors += fileContent.split(ts + expectError).length - 1;
-  const tsfix = "$TSFix";
-  const me = "Me";
+  const tsfix = '$TSFix';
+  const me = 'Me';
   bundle.tsFixMes += fileContent.split(tsfix + me).length - 1;
 };

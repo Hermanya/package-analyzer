@@ -1,5 +1,5 @@
-import fastGlob from "fast-glob";
-import { Bundle } from "./types";
+import fastGlob from 'fast-glob';
+import { Bundle } from './types';
 import {
   tryCatch,
   getFileContents,
@@ -7,8 +7,8 @@ import {
   addDependents,
   addTsIgnores,
   addFileSize
-} from "./utils";
-import fetch from "node-fetch";
+} from './utils';
+import fetch from 'node-fetch';
 
 const collectPackageMetadata = async ({
   root,
@@ -22,10 +22,10 @@ const collectPackageMetadata = async ({
   ref: string;
   projectId: string;
   secret: string;
-}) => {
-  const ignore = ["**/node_modules/**", "**/vendor/**"];
+}): Promise<void> => {
+  const ignore = ['**/node_modules/**', '**/vendor/**'];
   if (!root) {
-    console.log("Please set COLLECT_PACKAGE_METADATA_FROM");
+    console.log('Please set COLLECT_PACKAGE_METADATA_FROM');
   }
 
   const files: string[] = fastGlob.sync(`${root}**/*.(jsx|tsx|js|ts|styl)`, {
@@ -41,16 +41,16 @@ const collectPackageMetadata = async ({
     .map((packageLocation: string) => {
       const directory =
         packageLocation
-          .split("/")
+          .split('/')
           .slice(0, -1)
-          .join("/") + "/";
+          .join('/') + '/';
       return {
         packageJson: require(packageLocation),
         tsconfig: tryCatch(() =>
-          require(packageLocation.replace("package.json", "tsconfig.json"))
+          require(packageLocation.replace('package.json', 'tsconfig.json'))
         ),
         directory,
-        importName: (directory.split("/static/")[1] || "").slice(0, -1),
+        importName: (directory.split('/static/')[1] || '').slice(0, -1),
         sourceFileSize: 0,
         sourceFileSizePerLanguage: { js: 0, jsx: 0, ts: 0, tsx: 0, styl: 0 },
         testFilesSize: 0,
@@ -74,7 +74,7 @@ const collectPackageMetadata = async ({
       }
       const fileContent = fileContents[index];
       addDependencies(file, fileContent, bundle, packages);
-      addFileSize(file, Buffer.byteLength(fileContents[index], "utf8"), bundle);
+      addFileSize(file, Buffer.byteLength(fileContents[index], 'utf8'), bundle);
       addTsIgnores(fileContent, bundle);
     });
 
@@ -86,12 +86,12 @@ const collectPackageMetadata = async ({
 
     const backend =
       process.env.PACKAGE_ANALYZER_BACKEND ||
-      "https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev";
+      'https://4r8pobcqh9.execute-api.us-east-1.amazonaws.com/dev';
 
     return fetch(`${backend}/metadata`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         projectId,
@@ -103,7 +103,7 @@ const collectPackageMetadata = async ({
     })
       .then(_ => _.json())
       .then(() => {
-        console.log("Metadata uploaded!");
+        console.log('Metadata uploaded!');
       })
       .catch(error => {
         console.error(`Failed to upload metadata: ${error}`);

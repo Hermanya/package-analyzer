@@ -1,4 +1,5 @@
 {
+  "name": "collect-package-metadata",
   "version": "0.1.8",
   "license": "MIT",
   "main": "dist/index.js",
@@ -29,14 +30,6 @@
     "url": "https://github.com/Hermanya/package-analyzer.git"
   },
   "homepage": "https://github.com/Hermanya/package-analyzer#readme",
-  "peerDependencies": {},
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
-  },
-  "prettier": {},
-  "name": "collect-package-metadata",
   "author": "Herman Starikov",
   "module": "dist/collect-package-metadata.esm.js",
   "size-limit": [
@@ -51,14 +44,11 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.7.0",
-    "husky": "^4.3.0",
     "size-limit": "^4.7.0",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.0.3",
-    "typescript": "^4.0.5"
+    "@types/node-fetch": "^2.5.7",
+    "tsdx": "^0.14.1"
   },
   "dependencies": {
-    "@types/node-fetch": "^2.5.7",
     "fast-glob": "^3.2.4",
     "node-fetch": "^2.6.1"
   }

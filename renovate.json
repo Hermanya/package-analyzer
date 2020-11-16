@@ -1,0 +1,10 @@
+{
+  "extends": ["config:base"],
+  "packageFiles": ["package.json", "packages/**/package.json"],
+  "packageRules": [
+    {
+      "packagePatterns": ["^@mono/.*"],
+      "groupName": "packages"
+    }
+  ]
+}
