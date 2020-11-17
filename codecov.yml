@@ -7,3 +7,7 @@ flags:
     paths:
       - ./packages/api/
     carryforward: true
+  ui:
+    paths:
+      - ./packages/ui/
+    carryforward: true

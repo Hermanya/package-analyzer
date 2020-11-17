@@ -29,10 +29,14 @@ export const getFileContents = (fileNames: string[]) => {
   );
 };
 
-const isTest = (file: string) => file.match(/__tests__/);
-const isStory = (file: string) => file.match(/__stories__/);
-const isFixture = (file: string) => file.match(/__fixtures__/);
-const isMock = (file: string) => file.match(/__mocks__/);
+const isTest = (file: string) =>
+  file.match(/__tests__/) || file.match(/\/tests\//);
+const isStory = (file: string) =>
+  file.match(/__stories__/) || file.match(/\/stories\//);
+const isFixture = (file: string) =>
+  file.match(/__fixtures__/) || file.match(/\/fixtures\//);
+const isMock = (file: string) =>
+  file.match(/__mocks__/) || file.match(/\/mocks\//);
 
 export const addFileSize = (file: string, fileSize: number, bundle: Bundle) => {
   const extension = file.split(".").pop() as "js" | "ts";

@@ -24,9 +24,6 @@ const collectPackageMetadata = async ({
   secret: string;
 }) => {
   const ignore = ["**/node_modules/**", "**/vendor/**"];
-  if (!root) {
-    console.log("Please set COLLECT_PACKAGE_METADATA_FROM");
-  }
 
   const files: string[] = fastGlob.sync(`${root}**/*.(jsx|tsx|js|ts|styl)`, {
     onlyFiles: true,

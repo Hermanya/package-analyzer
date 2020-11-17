@@ -9,7 +9,7 @@ jobs:
       matrix:
         node: ['10.x']
         os: [macOS-latest]
-        project: ['packages/cli', 'packages/api']
+        project: ['packages/cli', 'packages/api', 'packages/ui']
 
     steps:
       - name: Checkout repo
