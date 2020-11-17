@@ -10,6 +10,12 @@ export const tryCatch = (_: () => void) => {
   } catch (e) {}
 };
 
+export const assert = (noError: boolean, error: Error | null) => {
+  if (noError === false) {
+    throw error;
+  }
+};
+
 export const getFileContents = (fileNames: string[]) => {
   return Promise.all(
     fileNames.map(
@@ -19,9 +25,7 @@ export const getFileContents = (fileNames: string[]) => {
             error: NodeJS.ErrnoException | null,
             data: string
           ) {
-            if (error) {
-              return console.error(error);
-            }
+            assert(!error, error);
             resolve(data);
           });
         })
@@ -42,19 +46,21 @@ export const addFileSize = (file: string, fileSize: number, bundle: Bundle) => {
   const extension = file.split(".").pop() as "js" | "ts";
   if (isTest(file)) {
     bundle.testFilesSize += fileSize;
-    if (bundle.testFileSizePerLanguage[extension] === undefined) {
-      throw Error(
+    assert(
+      bundle.testFileSizePerLanguage[extension] !== undefined,
+      Error(
         `Extension not accounted for: ${extension} in testFileSizePerLanguage`
-      );
-    }
+      )
+    );
     bundle.testFileSizePerLanguage[extension] += fileSize;
   } else if (isStory(file)) {
     bundle.storyFilesSize += fileSize;
-    if (bundle.storyFileSizePerLanguage[extension] === undefined) {
-      throw Error(
+    assert(
+      bundle.storyFileSizePerLanguage[extension] !== undefined,
+      Error(
         `Extension not accounted for: ${extension} in storyFileSizePerLanguage`
-      );
-    }
+      )
+    );
     bundle.storyFileSizePerLanguage[extension] += fileSize;
   } else if (isFixture(file)) {
     bundle.fixtureFilesSize += fileSize;
@@ -62,11 +68,12 @@ export const addFileSize = (file: string, fileSize: number, bundle: Bundle) => {
     bundle.mockFilesSize += fileSize;
   } else {
     bundle.sourceFileSize += fileSize;
-    if (bundle.sourceFileSizePerLanguage[extension] === undefined) {
-      throw Error(
+    assert(
+      bundle.sourceFileSizePerLanguage[extension] !== undefined,
+      Error(
         `Extension not accounted for: ${extension} in sourceFileSizePerLanguage`
-      );
-    }
+      )
+    );
     bundle.sourceFileSizePerLanguage[extension] += fileSize;
   }
 };
@@ -80,7 +87,7 @@ const exceptions = [
   "bundles/design-system",
   "bundles/translation"
 ];
-const resolveBundle = (bundles: Bundle[], importPath: string) => {
+export const resolveBundle = (bundles: Bundle[], importPath: string) => {
   const exception = exceptions.find(
     _ => _ === importPath || importPath.startsWith(_ + "/")
   );
@@ -91,10 +98,8 @@ const resolveBundle = (bundles: Bundle[], importPath: string) => {
     _ =>
       _.importName === importPath || importPath.startsWith(_.importName + "/")
   );
-  if (!bundle) {
-    throw Error(`Bundle not resolved: ${importPath}`);
-  }
-  return bundle.importName;
+  assert(!!bundle, Error(`Bundle not resolved: ${importPath}`));
+  return bundle!.importName;
 };
 
 export const addDependencies = (
@@ -121,9 +126,10 @@ export const addDependencies = (
       .map(_ => (_.startsWith("bundles/") ? resolveBundle(bundles, _) : _))
       .filter(_ => !_.startsWith("."));
     [...dependencies, ...dynamicDependencies].forEach(dependency => {
-      if (dependency.length > 100) {
-        throw Error(`Dependency too long: ${dependency}`);
-      }
+      assert(
+        dependency.length < 100,
+        Error(`Dependency too long: ${dependency}`)
+      );
     });
     bundle.dependencies = uniq([
       ...dependencies,

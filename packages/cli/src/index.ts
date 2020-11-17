@@ -66,13 +66,16 @@ const collectPackageMetadata = async ({
   return getFileContents(files).then((fileContents: string[]) => {
     files.forEach((file, index) => {
       const bundle = packages.find(_ => file.startsWith(_.directory));
-      if (!bundle) {
-        return;
+      if (bundle) {
+        const fileContent = fileContents[index];
+        addDependencies(file, fileContent, bundle, packages);
+        addFileSize(
+          file,
+          Buffer.byteLength(fileContents[index], "utf8"),
+          bundle
+        );
+        addTsIgnores(fileContent, bundle);
       }
-      const fileContent = fileContents[index];
-      addDependencies(file, fileContent, bundle, packages);
-      addFileSize(file, Buffer.byteLength(fileContents[index], "utf8"), bundle);
-      addTsIgnores(fileContent, bundle);
     });
 
     addDependents(packages);

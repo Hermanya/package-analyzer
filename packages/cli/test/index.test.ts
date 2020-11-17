@@ -8,6 +8,7 @@ describe("cli", () => {
   beforeEach(() => {
     mockFetch = (fetch as unknown) as jest.Mock;
     mockFetch.mockReset();
+    jest.spyOn(global.console, "log").mockImplementation();
   });
   test("happy path", async () => {
     mockFetch.mockResolvedValueOnce({
