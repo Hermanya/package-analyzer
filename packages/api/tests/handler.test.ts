@@ -7,6 +7,7 @@ import { APIGatewayProxyEvent, Context } from "aws-lambda";
 describe("handler", () => {
   it("postMetadata", async () => {
     process.env.BUCKET = "Bucket";
+    process.env.DYNAMODB_TABLE = "TableName";
 
     AWSMock.setSDKInstance(AWS);
     AWSMock.mock(
@@ -47,6 +48,7 @@ describe("handler", () => {
   });
   test("getLatestMetadata", async () => {
     process.env.BUCKET = "Bucket";
+    process.env.DYNAMODB_TABLE = "TableName";
 
     AWSMock.setSDKInstance(AWS);
 
