@@ -1,0 +1,28 @@
+name: Package Analyzer
+on: [push]
+jobs:
+  build:
+    name: Node ${{ matrix.node }} and ${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: ['12.x']
+        os: [macOS-latest]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node test.js
+      # - run: npx collect-package-metadata
+      #   env:
+      #     PACKAGE_ANALYZER_PROJECT_ID: 043c3e0c-4b92-4d42-9787-179f7283d9b7
+      #     PACKAGE_ANALYZER_SECRET: ${{ secrets.PACKAGE_ANALYZER_SECRET }}
+      #     PACKAGE_ANALYZER_ROOT:
+      #     PACKAGE_ANALYZER_REVISION: 
+      #     PACKAGE_ANALYZER_REF:
