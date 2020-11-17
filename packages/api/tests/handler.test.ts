@@ -16,9 +16,13 @@ describe("handler", () => {
         callback(null, { Item: { secret: "secret" } });
       }
     );
-    AWSMock.mock("S3", "putObject", (_params, callback: Function) => {
-      callback(null, {});
-    });
+    AWSMock.mock(
+      "S3",
+      "putObject",
+      (_params: AWS.S3.PutObjectRequest, callback: Function) => {
+        callback(null, {});
+      }
+    );
 
     const response = await postMetadata(
       {
@@ -46,9 +50,13 @@ describe("handler", () => {
 
     AWSMock.setSDKInstance(AWS);
 
-    AWSMock.mock("S3", "getObject", (_params, callback: Function) => {
-      callback(null, { Body: Buffer.from('{"test": "metadata"}') });
-    });
+    AWSMock.mock(
+      "S3",
+      "getObject",
+      (_params: AWS.S3.GetObjectRequest, callback: Function) => {
+        callback(null, { Body: Buffer.from('{"test": "metadata"}') });
+      }
+    );
 
     const response = await getLatestMetadata(
       ({
