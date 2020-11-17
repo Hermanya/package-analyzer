@@ -86,6 +86,17 @@ const serverlessConfiguration: Serverless = {
           }
         }
       ]
+    },
+    createProject: {
+      handler: "handler.createProject",
+      events: [
+        {
+          http: {
+            method: "post",
+            path: "project/{slug}"
+          }
+        }
+      ]
     }
   },
   resources: {

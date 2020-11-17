@@ -1,7 +1,7 @@
-import { getLatestMetadata, postMetadata } from "../src";
+import { createProject, getLatestMetadata, postMetadata } from "../src";
 import * as AWSMock from "aws-sdk-mock";
 import * as AWS from "aws-sdk";
-import { GetItemInput } from "aws-sdk/clients/dynamodb";
+import { GetItemInput, PutItemInput } from "aws-sdk/clients/dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
@@ -194,5 +194,51 @@ describe("handler", () => {
       expect(response.statusCode).toBe(500);
       AWSMock.restore("S3");
     });
+  });
+  describe("createProject", () => {
+    test("happy path", async () => {
+      AWSMock.mock(
+        "DynamoDB.DocumentClient",
+        "put",
+        (_params: PutItemInput, callback: Function) => {
+          callback(null, {});
+        }
+      );
+
+      const response = await createProject(
+        ({
+          pathParameters: { slug: "new-project" }
+        } as unknown) as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      );
+      expect(response).toEqual({
+        body: '{"message":"Created!"}',
+        statusCode: 200
+      });
+      AWSMock.restore("DynamoDB.DocumentClient");
+    });
+  });
+  test("internal error", async () => {
+    AWSMock.mock("DynamoDB.DocumentClient", "put", () => {
+      throw Error("test");
+    });
+    const response = (await createProject(
+      {} as APIGatewayProxyEvent,
+      {} as Context,
+      () => {}
+    )) as APIGatewayProxyResult;
+    expect(response.statusCode).toBe(500);
+    AWSMock.restore("DynamoDB.DocumentClient");
+  });
+
+  test("no env variables", async () => {
+    process.env.DYNAMODB_TABLE = "";
+    const response = (await createProject(
+      {} as APIGatewayProxyEvent,
+      {} as Context,
+      () => {}
+    )) as APIGatewayProxyResult;
+    expect(response.statusCode).toBe(500);
   });
 });

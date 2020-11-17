@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 import * as AWS from "aws-sdk";
-// import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
   const s3 = new AWS.S3();
@@ -23,7 +23,7 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       })
     };
   }
-  const { projectId, secret, revision, packages } = JSON.parse(event.body);
+  const { projectId, secret, revision, ref, packages } = JSON.parse(event.body);
   const response = await dynamoDb
     .get({
       TableName,
@@ -49,7 +49,12 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
       })
     };
   }
-  const Body = JSON.stringify({ packages });
+  const Body = JSON.stringify({
+    revision,
+    ref,
+    createdAt: Date.now(),
+    packages
+  });
   await Promise.all([
     s3
       .putObject({
@@ -58,13 +63,15 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
         Body
       })
       .promise(),
-    s3
-      .putObject({
-        Bucket,
-        Key: `${projectId}-latest.json`,
-        Body
-      })
-      .promise()
+    (ref !== "refs/heads/master"
+      ? Promise.resolve()
+      : s3
+          .putObject({
+            Bucket,
+            Key: `${projectId}-latest.json`,
+            Body
+          })
+          .promise()) as Promise<void>
   ]);
   return {
     statusCode: 200,
@@ -74,37 +81,52 @@ export const postMetadata: APIGatewayProxyHandler = async (event, _context) => {
   };
 };
 
-// export const createProject: APIGatewayProxyHandler = async (
-//   _event,
-//   _context
-// ) => {
-//   const { DYNAMODB_TABLE: TableName } = process.env;
-//   if (!TableName) {
-//     return {
-//       statusCode: 500,
-//       body: JSON.stringify({
-//         error: "TableName env variable is missing!"
-//       })
-//     };
-//   }
-//   const dynamoDb = new AWS.DynamoDB.DocumentClient();
-//   await dynamoDb
-//     .put({
-//       TableName,
-//       Item: {
-//         id: uuidv4(),
-//         secret: uuidv4(),
-//         slug: "coursera",
-//         createdAt: Date.now(),
-//         updatedAt: Date.now()
-//       }
-//     })
-//     .promise();
-//   return {
-//     statusCode: 500,
-//     body: JSON.stringify({ message: "Not implemented" })
-//   };
-// };
+export const createProject: APIGatewayProxyHandler = async (
+  event,
+  _context
+) => {
+  try {
+    const { DYNAMODB_TABLE: TableName } = process.env;
+    if (!TableName) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: "TableName env variable is missing!"
+        })
+      };
+    }
+    const dynamoDb = new AWS.DynamoDB.DocumentClient();
+    await dynamoDb
+      .put({
+        TableName,
+        Item: {
+          id: uuidv4(),
+          secret: uuidv4(),
+          slug: event.pathParameters?.slug,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        }
+      })
+      .promise();
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Created!" })
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify(
+        {
+          message: "error",
+          error,
+          input: event
+        },
+        null,
+        2
+      )
+    };
+  }
+};
 
 export const getLatestMetadata: APIGatewayProxyHandler = async (
   event,

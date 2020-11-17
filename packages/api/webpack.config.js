@@ -1,11 +1,12 @@
 const path = require("path");
 const slsw = require("serverless-webpack");
 const nodeExternals = require("webpack-node-externals");
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-
-const modulesDir = path.resolve(__dirname, "../node_modules");
+// const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 module.exports = {
+  optimization: {
+    concatenateModules: false
+  },
   context: __dirname,
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
   entry: slsw.lib.entries,
@@ -15,19 +16,19 @@ module.exports = {
   resolve: {
     extensions: [".mjs", ".json", ".ts"],
     symlinks: false,
-    cacheWithContext: false,
+    cacheWithContext: false
   },
   output: {
     libraryTarget: "commonjs",
     path: path.join(__dirname, ".webpack"),
-    filename: "[name].js",
+    filename: "[name].js"
   },
   target: "node",
   externals: [
     nodeExternals(),
     nodeExternals({
-      modulesDir: modulesDir,
-    }),
+      modulesDir: path.resolve(__dirname, "node_modules")
+    })
   ],
   module: {
     rules: [
@@ -39,15 +40,15 @@ module.exports = {
           [
             path.resolve(__dirname, "node_modules"),
             path.resolve(__dirname, ".serverless"),
-            path.resolve(__dirname, ".webpack"),
-          ],
+            path.resolve(__dirname, ".webpack")
+          ]
         ],
         options: {
           transpileOnly: true,
-          experimentalWatchApi: true,
-        },
-      },
-    ],
+          experimentalWatchApi: true
+        }
+      }
+    ]
   },
   plugins: [
     // new ForkTsCheckerWebpackPlugin({
@@ -56,5 +57,5 @@ module.exports = {
     //     cache: true
     //   }
     // })
-  ],
+  ]
 };
