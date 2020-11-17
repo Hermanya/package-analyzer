@@ -19,6 +19,6 @@ describe("collect-package-metadata", () => {
     });
     expect(mockFetch.mock.calls.length).toBe(1);
     const result = JSON.parse(mockFetch.mock.calls[0][1].body);
-    expect(result.packages.length).toBe(3);
+    expect(result.packages.length).toBe(2);
   });
 });
