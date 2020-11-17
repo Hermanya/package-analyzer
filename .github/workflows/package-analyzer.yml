@@ -23,5 +23,5 @@ jobs:
           PACKAGE_ANALYZER_PROJECT_ID: 043c3e0c-4b92-4d42-9787-179f7283d9b7
           PACKAGE_ANALYZER_SECRET: ${{ secrets.PACKAGE_ANALYZER_SECRET }}
           PACKAGE_ANALYZER_ROOT: /Users/runner/work/package-analyzer/package-analyzer/packages/
-          PACKAGE_ANALYZER_REVISION: ${{ github.event.push.after }}
-          PACKAGE_ANALYZER_REF: ${{ github.event.push.ref }}
+          PACKAGE_ANALYZER_REVISION: ${{ github.event.after }}
+          PACKAGE_ANALYZER_REF: ${{ github.event.ref }}
