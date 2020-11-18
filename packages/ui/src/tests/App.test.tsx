@@ -1,9 +1,18 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import App from '../App';
+import React from "react";
+import { render, screen, waitFor } from "@testing-library/react";
+import App from "../App";
+import { fixture as mockFixture } from "../fixtures/fixture";
+jest.mock("../api", () => ({
+  fetchProjectData: () =>
+    Promise.resolve({ json: () => Promise.resolve(mockFixture) }),
+}));
 
-test('renders learn react link', () => {
+test("renders project data", async () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+
+  expect(screen.getByText(/loading/i)).toBeInTheDocument();
+
+  await waitFor(() =>
+    expect(screen.getByText(/got project data/i)).toBeInTheDocument()
+  );
 });

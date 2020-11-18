@@ -18,6 +18,7 @@ describe("handler", () => {
     const body = JSON.stringify({
       projectId: "projectId",
       secret: "secret",
+      ref: "ref",
       revision: "revision",
       packages: "packages"
     });
@@ -40,6 +41,39 @@ describe("handler", () => {
       const response = await postMetadata(
         {
           body
+        } as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      );
+      expect(response).toEqual({
+        body: '{"message":"Big Success!"}',
+        statusCode: 200
+      });
+      AWSMock.restore("DynamoDB.DocumentClient");
+      AWSMock.restore("S3");
+    });
+    test("refs/heads/master", async () => {
+      AWSMock.mock(
+        "DynamoDB.DocumentClient",
+        "get",
+        (_params: GetItemInput, callback: Function) => {
+          callback(null, { Item: { secret: "secret" } });
+        }
+      );
+      AWSMock.mock(
+        "S3",
+        "putObject",
+        (_params: AWS.S3.PutObjectRequest, callback: Function) => {
+          callback(null, {});
+        }
+      );
+      const response = await postMetadata(
+        {
+          body: JSON.stringify({
+            ...JSON.parse(body),
+
+            ref: "refs/heads/master"
+          })
         } as APIGatewayProxyEvent,
         {} as Context,
         () => {}
@@ -110,8 +144,7 @@ describe("handler", () => {
   });
   describe("getLatestMetadata", () => {
     const pathParameters = {
-      key: "key",
-      revision: "revision"
+      key: "key"
     };
     test("happy path", async () => {
       AWSMock.mock(
@@ -124,6 +157,36 @@ describe("handler", () => {
       const response = await getLatestMetadata(
         ({
           pathParameters
+        } as unknown) as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      );
+      expect(response).toEqual({
+        body: '{"test": "metadata"}',
+        headers: {
+          "Access-Control-Allow-Credentials": true,
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json"
+        },
+        statusCode: 200
+      });
+
+      AWSMock.restore("S3");
+    });
+    test("specific revision", async () => {
+      AWSMock.mock(
+        "S3",
+        "getObject",
+        (_params: AWS.S3.GetObjectRequest, callback: Function) => {
+          callback(null, { Body: Buffer.from('{"test": "metadata"}') });
+        }
+      );
+      const response = await getLatestMetadata(
+        ({
+          pathParameters: {
+            ...pathParameters,
+            revision: "revision"
+          }
         } as unknown) as APIGatewayProxyEvent,
         {} as Context,
         () => {}

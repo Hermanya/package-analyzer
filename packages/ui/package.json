@@ -54,7 +54,8 @@
     "babel-loader": "^8.2.1",
     "react-is": "^17.0.1"
   },
-    "jest": {
+  "prettier": {},
+  "jest": {
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx,js,jsx}",
       "!/node_modules/",
