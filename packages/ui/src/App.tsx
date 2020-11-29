@@ -1,26 +1,22 @@
-import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import { ProjectData } from "./types";
-import { fetchProjectData } from "./api";
+import { BaseStyles } from "@primer/components";
+import React from "react";
+import { Route, Switch } from "react-router-dom";
+import { GlobalNavigation } from "./components/GlobalNavigation";
+import { PackageMap } from "./pages/PackageMap";
 
 function App() {
-  const [projectData, setProjectData] = useState<ProjectData | undefined>(
-    undefined
-  );
-  useEffect(() => {
-    fetchProjectData()
-      .then((_) => _.json())
-      .then((response) => setProjectData(response));
-  }, []);
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>{projectData ? "Got project data" : "Loading"}</p>
-      </header>
-    </div>
+    <BaseStyles>
+      <GlobalNavigation />
+      <Switch>
+        <Route exact path="/">
+          Landing page
+        </Route>
+        <Route path="/:slug">
+          <PackageMap />
+        </Route>
+      </Switch>
+    </BaseStyles>
   );
 }
 

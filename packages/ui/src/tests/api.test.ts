@@ -1,7 +1,10 @@
-import { fetchProjectData } from "../api";
+import { fetchMetadata, fetchProject } from "../api";
 
 describe("api", () => {
-  test("fetchProjectData", () => {
-    expect(fetchProjectData).toBeDefined();
+  test("fetchProject", () => {
+    expect(fetchProject).toBeDefined();
+  });
+  test("fetchMetadata", () => {
+    expect(fetchMetadata).toBeDefined();
   });
 });

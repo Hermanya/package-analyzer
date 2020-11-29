@@ -1,13 +1,17 @@
 export const fixture = {
-  revision: "de4b5b741df48e644474cd884c4c97f2fcde30a7",
+  revision: "62dd0e03058231c0df66474a33cb5c7d858af93e",
   ref: "refs/heads/master",
-  createdAt: 1605638073303,
+  createdAt: 1605660133599,
   packages: [
     {
       packageJson: {
         name: "api",
         version: "0.0.1",
-        scripts: { test: "tsdx test", lint: "tsdx lint", build: "tsdx build" },
+        scripts: {
+          test: "tsdx test",
+          lint: "tsdx lint",
+          build: "tsdx build",
+        },
         dependencies: {
           "aws-sdk": "^2.793.0",
           "aws-lambda": "^1.0.6",
@@ -29,6 +33,7 @@ export const fixture = {
           webpack: "^5.4.0",
           "webpack-node-externals": "^2.5.2",
         },
+        prettier: {},
       },
       tsconfig: {
         compilerOptions: {
@@ -54,11 +59,11 @@ export const fixture = {
       directory:
         "/Users/runner/work/package-analyzer/package-analyzer/packages/api/",
       importName: "",
-      sourceFileSize: 15504,
+      sourceFileSize: 17200,
       sourceFileSizePerLanguage: {
         js: 1511,
         jsx: 0,
-        ts: 13993,
+        ts: 15689,
         tsx: 0,
         styl: 0,
       },
@@ -109,7 +114,10 @@ export const fixture = {
             path: "dist/collect-package-metadata.cjs.production.min.js",
             limit: "10 KB",
           },
-          { path: "dist/collect-package-metadata.esm.js", limit: "10 KB" },
+          {
+            path: "dist/collect-package-metadata.esm.js",
+            limit: "10 KB",
+          },
         ],
         devDependencies: {
           "@size-limit/preset-small-lib": "^4.7.0",
@@ -196,6 +204,7 @@ export const fixture = {
           "babel-loader": "^8.2.1",
           "react-is": "^17.0.1",
         },
+        prettier: {},
         jest: {
           collectCoverageFrom: [
             "src/**/*.{ts,tsx,js,jsx}",
@@ -231,8 +240,14 @@ export const fixture = {
       directory:
         "/Users/runner/work/package-analyzer/package-analyzer/packages/ui/",
       importName: "",
-      sourceFileSize: 2378,
-      sourceFileSizePerLanguage: { js: 0, jsx: 0, ts: 754, tsx: 1624, styl: 0 },
+      sourceFileSize: 11020,
+      sourceFileSizePerLanguage: {
+        js: 0,
+        jsx: 0,
+        ts: 9009,
+        tsx: 2011,
+        styl: 0,
+      },
       testFilesSize: 0,
       testFileSizePerLanguage: { js: 0, jsx: 0, ts: 0, tsx: 0 },
       storyFilesSize: 0,
@@ -241,7 +256,6 @@ export const fixture = {
       mockFilesSize: 0,
       dependencies: [
         "react",
-        "@testing-library/react",
         "@storybook/react",
         "@storybook/react/types-6-0",
         "web-vitals",

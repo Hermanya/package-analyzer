@@ -97,6 +97,17 @@ const serverlessConfiguration: Serverless = {
           }
         }
       ]
+    },
+    getProject: {
+      handler: "handler.getProject",
+      events: [
+        {
+          http: {
+            method: "get",
+            path: "project/{slug}"
+          }
+        }
+      ]
     }
   },
   resources: {

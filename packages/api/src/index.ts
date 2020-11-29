@@ -190,3 +190,69 @@ export const getLatestMetadata: APIGatewayProxyHandler = async (
     };
   }
 };
+
+export const getProject: APIGatewayProxyHandler = async (event, _context) => {
+  try {
+    const { DYNAMODB_TABLE: TableName } = process.env;
+    if (!TableName) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: "TableName are required env variables!"
+        })
+      };
+    }
+    const { slug } = event.pathParameters ?? {};
+    if (!slug) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: "Slug is missing from the url!"
+        })
+      };
+    }
+    const dynamoDb = new AWS.DynamoDB.DocumentClient();
+    const data = await dynamoDb
+      .scan({
+        TableName,
+        FilterExpression: "#slug = :slug",
+        ExpressionAttributeNames: {
+          "#slug": "slug"
+        },
+        ExpressionAttributeValues: {
+          ":slug": slug
+        }
+      })
+      .promise();
+    if (!data.Items || data.Items.length === 0) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: "Not found" })
+      };
+    } else {
+      const { secret, ...project } = data.Items[0];
+      return {
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Credentials": true,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(project)
+      };
+    }
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify(
+        {
+          message: "error",
+          error,
+          input: event
+        },
+        null,
+        2
+      )
+    };
+  }
+};
