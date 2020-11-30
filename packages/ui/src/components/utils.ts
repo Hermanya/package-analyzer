@@ -20,7 +20,7 @@ export function unslugify(slug: string) {
   if (!slug) {
     return "";
   }
-  const result = slug.replace(/\-/g, " ");
+  const result = slug.replace(/-/g, " ");
   return result.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
