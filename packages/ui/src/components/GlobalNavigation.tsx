@@ -1,7 +1,12 @@
 import { Header, StyledOcticon } from "@primer/components";
-import { BugIcon, LightBulbIcon, PackageIcon } from "@primer/octicons-react";
+import {
+  BugIcon,
+  LightBulbIcon,
+  MarkGithubIcon,
+  PackageIcon,
+} from "@primer/octicons-react";
 import React from "react";
-import { Link, useRouteMatch } from "react-router-dom";
+import { useRouteMatch } from "react-router-dom";
 import { unslugify } from "./utils";
 
 export const GlobalNavigation: React.FC<{}> = () => {
@@ -15,22 +20,43 @@ export const GlobalNavigation: React.FC<{}> = () => {
           <span>{unslugify(slug)}'s packages</span>
         </Header.Link>
       </Header.Item>
-      <Header.Item>
+      {/* <Header.Item>
         <Header.Link as={Link} to={`/${slug}/map`}>
           Map
         </Header.Link>
-      </Header.Item>
+      </Header.Item> */}
       <Header.Item full></Header.Item>
 
+      <Header.Item mr={4}>
+        <Header.Link
+          {...({
+            href: "https://github.com/Hermanya/package-analyzer/",
+          } as any)}
+        >
+          <StyledOcticon icon={MarkGithubIcon} mr={1} />
+          Repo
+        </Header.Link>
+      </Header.Item>
+      <Header.Item mr={4}>
+        <Header.Link
+          {...({
+            href:
+              "https://github.com/Hermanya/package-analyzer/issues/new?labels=enhancement",
+          } as any)}
+        >
+          <StyledOcticon icon={LightBulbIcon} mr={1} />
+          Suggestion
+        </Header.Link>
+      </Header.Item>
       <Header.Item mr={0}>
         <Header.Link
           {...({
-            href: "https://github.com/Hermanya/package-analyzer/issues/new",
+            href:
+              "https://github.com/Hermanya/package-analyzer/issues/new?labels=bug",
           } as any)}
         >
           <StyledOcticon icon={BugIcon} mr={1} />
-          Bugs & Suggestions
-          <StyledOcticon icon={LightBulbIcon} ml={1} />
+          Bug
         </Header.Link>
       </Header.Item>
     </Header>
