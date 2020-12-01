@@ -77,7 +77,7 @@ export const handleUnselectedTeam = (
 };
 
 export const getSelectedLens = (query: URLSearchParams) => {
-  return query.get("lens") ?? "appsAndLibs";
+  return query.get("lens") ?? "apps-and-libs";
 };
 
 export const handleSelectedLens = (
@@ -98,181 +98,112 @@ export const getSelectedRevision = (
 export const getLensFunction = (query: URLSearchParams) => {
   const lens = getSelectedLens(query);
   switch (lens) {
-    case "appsAndLibs":
+    case "apps-and-libs":
       return (bundle: Bundle) =>
-        isBundleAnApp(bundle) ? theme.colors.blue[4] : theme.colors.blue[3];
-    //     case "typescript":
-    //       return (bundle: Bundle) => {
-    //         if (!bundle.tsconfig) {
-    //           return "red";
-    //         } else if (
-    //           bundle.sourceFileSizePerLanguage.js > 0 ||
-    //           bundle.sourceFileSizePerLanguage.jsx > 0
-    //         ) {
-    //           return "orange";
-    //         } else if (bundle.tsconfig?.compilerOptions?.noImplicitAny === false) {
-    //           return "yellow";
-    //         } else {
-    //           return "green";
-    //         }
-    //       };
-    //     case "tests":
-    //       return (bundle: Bundle) => (bundle.testFilesSize ? "green" : "red");
-    //     case "react":
-    //       return (bundle: Bundle) => {
-    //         if (isBundleAnApp(bundle)) {
-    //           const reactVersion = getReactVersion(bundle);
-    //           if (reactVersion === "=16.13.1") {
-    //             return "green";
-    //           } else if (reactVersion === "npm:react@16.13.0") {
-    //             return "green";
-    //           } else if (reactVersion === "npm:react@16.0.0" || !reactVersion) {
-    //             return "green";
-    //           } else {
-    //             return "orange";
-    //           }
-    //         } else {
-    //           return "gray";
-    //         }
-    //       };
-    //     case "lodash":
-    //       return (bundle: Bundle) => {
-    //         const dependencies: string[] = bundle.dependencies;
-    //         const underscore = dependencies.includes("underscore");
-    //         const lodash = dependencies.includes("lodash");
-    //         if (underscore && lodash) {
-    //           return "red";
-    //         } else if (lodash) {
-    //           return "green";
-    //         } else if (underscore) {
-    //           return "orange";
-    //         } else {
-    //           return "gray";
-    //         }
-    //       };
+        isBundleAnApp(bundle) ? theme.colors.blue[4] : theme.colors.gray[4];
+    case "typescript":
+      return (bundle: Bundle) => {
+        if (!bundle.tsconfig) {
+          return theme.colors.red[4];
+        } else if (
+          bundle.sourceFileSizePerLanguage.js > 0 ||
+          bundle.sourceFileSizePerLanguage.jsx > 0
+        ) {
+          return theme.colors.orange[4];
+        } else if (bundle.tsconfig?.compilerOptions?.noImplicitAny === false) {
+          return theme.colors.yellow[4];
+        } else {
+          return theme.colors.green[4];
+        }
+      };
+    case "tests":
+      return (bundle: Bundle) =>
+        bundle.testFilesSize ? theme.colors.green[4] : theme.colors.red[4];
 
-    //     case "dependency":
-    //       return (bundle: Bundle) => {
-    //         if (isBundleAnApp(bundle)) {
-    //           if (bundle.dependents.length === 0) {
-    //             return "green";
-    //           } else {
-    //             return "yellow";
-    //           }
-    //         } else if (bundle.dependents.length === 0) {
-    //           return "orange";
-    //         } else {
-    //           return "green";
-    //         }
-    //       };
+    case "lodash":
+      return (bundle: Bundle) => {
+        const dependencies: string[] = bundle.dependencies;
+        const underscore = dependencies.includes("underscore");
+        const lodash = dependencies.includes("lodash");
+        if (underscore && lodash) {
+          return theme.colors.red[4];
+        } else if (lodash) {
+          return theme.colors.green[4];
+        } else if (underscore) {
+          return theme.colors.orange[4];
+        } else {
+          return theme.colors.gray[4];
+        }
+      };
 
     default:
       return () => theme.colors.blue[4];
   }
 };
 
-export const getLegendFunction = (lens: string) => {
+export const getLegend = (lens: string) => {
   switch (lens) {
-    //     case "appsAndLibs":
-    //       return [
-    //         {
-    //           name: "Application",
-    //           value: "blue",
-    //         },
-    //         {
-    //           name: "Library",
-    //           value: "lightblue",
-    //         },
-    //       ];
-    //     case "tests":
-    //       return [
-    //         {
-    //           name: "Contains tests",
-    //           value: "green",
-    //         },
-    //         {
-    //           name: "No tests",
-    //           value: "red",
-    //         },
-    //       ];
-    //     case "typescript":
-    //       return [
-    //         {
-    //           name: "No tsconfig",
-    //           value: "red",
-    //         },
-    //         {
-    //           name: "Contains JS source code",
-    //           value: "orange",
-    //         },
-    //         {
-    //           name: "Implicit any",
-    //           value: "yellow",
-    //         },
-    //         {
-    //           name: "No implicit any",
-    //           value: "green",
-    //         },
-    //       ];
-    //     case "dependency":
-    //       return [
-    //         {
-    //           name: "App with no dependents",
-    //           value: "green",
-    //         },
-    //         {
-    //           name: "App with dependents",
-    //           value: "yellow",
-    //         },
-    //         {
-    //           name: "Lib with dependents",
-    //           value: "green",
-    //         },
-    //         {
-    //           name: "Lib with no dependents",
-    //           value: "orange",
-    //         },
-    //       ];
+    case "apps-and-libs":
+      return [
+        {
+          name: "Application",
+          value: "blue",
+        },
+        {
+          name: "Library",
+          value: "gray",
+        },
+      ];
+    case "tests":
+      return [
+        {
+          name: "Contains tests",
+          value: "green",
+        },
+        {
+          name: "No tests",
+          value: "red",
+        },
+      ];
+    case "typescript":
+      return [
+        {
+          name: "No tsconfig",
+          value: "red",
+        },
+        {
+          name: "Contains JS source code",
+          value: "orange",
+        },
+        {
+          name: "Implicit any",
+          value: "yellow",
+        },
+        {
+          name: "No implicit any",
+          value: "green",
+        },
+      ];
 
-    //     case "react":
-    //       return [
-    //         {
-    //           name: "Library bundle",
-    //           value: "gray",
-    //         },
-    //         {
-    //           name: "=16.13.1 or npm:react@16.13.0",
-    //           value: "green",
-    //         },
-    //         {
-    //           name: "npm:react@16.0.0 or global default",
-    //           value: "green",
-    //         },
-    //         {
-    //           name: "Other",
-    //           value: "red",
-    //         },
-    //       ];
-
-    //     case "lodash":
-    //       return [
-    //         {
-    //           name: "Lodash",
-    //           value: "green",
-    //         },
-    //         {
-    //           name: "Underscore",
-    //           value: "orange",
-    //         },
-    //         {
-    //           name: "Both",
-    //           value: "red",
-    //         },
-    //         {
-    //           name: "Neither",
-    //           value: "gray",
-    //         },
-    //       ];
+    case "lodash":
+      return [
+        {
+          name: "Lodash",
+          value: "green",
+        },
+        {
+          name: "Underscore",
+          value: "orange",
+        },
+        {
+          name: "Both",
+          value: "red",
+        },
+        {
+          name: "Neither",
+          value: "gray",
+        },
+      ];
 
     default:
       return [];

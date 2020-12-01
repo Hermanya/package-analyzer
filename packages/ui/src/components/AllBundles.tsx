@@ -51,7 +51,7 @@ const AllBundles: React.FC<Props> = ({ bundles }) => {
               <Box alignItems="center">
                 <Text>{unslugify(team)}</Text>
                 <Spacer size={12} />
-                <SecondaryText>
+                <SecondaryText as="small">
                   {teamBundles.length} packages = {formatBytes(teamBundleSize)}
                 </SecondaryText>
               </Box>
@@ -88,7 +88,7 @@ const AllBundles: React.FC<Props> = ({ bundles }) => {
                           transition: "background 1s",
                           boxShadow: `0px 0px 0px 2px ${
                             bundle === selectedBundle
-                              ? theme.colors.orange[4]
+                              ? theme.colors.black
                               : "white"
                           }`,
                           borderRadius: "2px",

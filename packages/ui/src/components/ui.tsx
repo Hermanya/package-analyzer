@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Text as PrimerText } from "@primer/components";
+import { Text as PrimerText, theme } from "@primer/components";
 export const Spacer = styled.div<{ size: number }>`
   min-width: ${(props) => props.size + "px"};
   min-height: ${(props) => props.size + "px"};
@@ -20,7 +20,7 @@ export const SecondaryText = styled(PrimerText)`
 export const InteractiveText = styled(PrimerText)`
   display: block;
   font-size: initial;
-  color: blue;
+  color: ${theme.colors.blue[4]};
 `;
 
 export const Clickable = styled.button`
