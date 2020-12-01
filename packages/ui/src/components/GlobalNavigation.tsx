@@ -17,7 +17,7 @@ export const GlobalNavigation: React.FC<{}> = () => {
       <Header.Item>
         <Header.Link fontSize={2}>
           <StyledOcticon icon={PackageIcon} size={32} mr={2} />
-          <span>{unslugify(slug)}'s packages</span>
+          {slug ? <span>{unslugify(slug)}'s packages</span> : "PackageList"}
         </Header.Link>
       </Header.Item>
       {/* <Header.Item>
@@ -34,7 +34,7 @@ export const GlobalNavigation: React.FC<{}> = () => {
           } as any)}
         >
           <StyledOcticon icon={MarkGithubIcon} mr={1} />
-          Repo
+          Star this project
         </Header.Link>
       </Header.Item>
       <Header.Item mr={4}>
@@ -45,7 +45,7 @@ export const GlobalNavigation: React.FC<{}> = () => {
           } as any)}
         >
           <StyledOcticon icon={LightBulbIcon} mr={1} />
-          Suggestion
+          Make a Suggestion
         </Header.Link>
       </Header.Item>
       <Header.Item mr={0}>
@@ -56,7 +56,7 @@ export const GlobalNavigation: React.FC<{}> = () => {
           } as any)}
         >
           <StyledOcticon icon={BugIcon} mr={1} />
-          Bug
+          File a Bug
         </Header.Link>
       </Header.Item>
     </Header>

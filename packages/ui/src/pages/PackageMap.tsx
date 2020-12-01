@@ -4,8 +4,6 @@ import {
   LabelGroup,
   Label,
   SideNav,
-  Flash,
-  Truncate,
   BranchName,
 } from "@primer/components";
 import React from "react";
