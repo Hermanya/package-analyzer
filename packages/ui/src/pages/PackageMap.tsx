@@ -6,6 +6,7 @@ import {
   SideNav,
   Flash,
   Truncate,
+  BranchName,
 } from "@primer/components";
 import React from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -79,21 +80,23 @@ export const PackageMap: React.FC<{}> = () => {
         {revision && (
           <div>
             <Spacer size={32} />
-            <Flash variant="warning">
-              <Truncate as="code" title={revision} maxWidth={200}>
-                {revision}
-              </Truncate>
-              revision selected!{" "}
-              <Clickable
-                onClick={() => {
-                  query.delete("revision");
+            <LabelText>Branch</LabelText>
+            <Spacer size={6} />
+            <BranchName title={revision}>
+              {metadata.ref.slice("refs/heads/".length)}
+            </BranchName>
+            <Spacer size={6} />
+            <Clickable
+              onClick={() => {
+                query.delete("revision");
 
-                  history.push(`${window.location.pathname}?${query}`);
-                }}
-              >
-                <InteractiveText>See master</InteractiveText>
-              </Clickable>
-            </Flash>
+                history.push(`${window.location.pathname}?${query}`);
+              }}
+            >
+              <InteractiveText>
+                <small>See latest master</small>
+              </InteractiveText>
+            </Clickable>
           </div>
         )}
         <Spacer size={32} />
