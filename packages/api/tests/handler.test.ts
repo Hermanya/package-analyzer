@@ -1,7 +1,16 @@
-import { createProject, getLatestMetadata, postMetadata } from "../src";
+import {
+  createProject,
+  getLatestMetadata,
+  getProject,
+  postMetadata
+} from "../src";
 import * as AWSMock from "aws-sdk-mock";
 import * as AWS from "aws-sdk";
-import { GetItemInput, PutItemInput } from "aws-sdk/clients/dynamodb";
+import {
+  GetItemInput,
+  PutItemInput,
+  ScanInput
+} from "aws-sdk/clients/dynamodb";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
@@ -281,27 +290,116 @@ describe("handler", () => {
       });
       AWSMock.restore("DynamoDB.DocumentClient");
     });
-  });
-  test("internal error", async () => {
-    AWSMock.mock("DynamoDB.DocumentClient", "put", () => {
-      throw Error("test");
-    });
-    const response = (await createProject(
-      {} as APIGatewayProxyEvent,
-      {} as Context,
-      () => {}
-    )) as APIGatewayProxyResult;
-    expect(response.statusCode).toBe(500);
-    AWSMock.restore("DynamoDB.DocumentClient");
-  });
 
-  test("no env variables", async () => {
-    process.env.DYNAMODB_TABLE = "";
-    const response = (await createProject(
-      {} as APIGatewayProxyEvent,
-      {} as Context,
-      () => {}
-    )) as APIGatewayProxyResult;
-    expect(response.statusCode).toBe(500);
+    test("internal error", async () => {
+      AWSMock.mock("DynamoDB.DocumentClient", "put", () => {
+        throw Error("test");
+      });
+      const response = (await createProject(
+        {} as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      )) as APIGatewayProxyResult;
+      expect(response.statusCode).toBe(500);
+      AWSMock.restore("DynamoDB.DocumentClient");
+    });
+
+    test("no env variables", async () => {
+      process.env.DYNAMODB_TABLE = "";
+      const response = (await createProject(
+        {} as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      )) as APIGatewayProxyResult;
+      expect(response.statusCode).toBe(500);
+    });
+  });
+  describe("getProject", () => {
+    test("happy path", async () => {
+      AWSMock.mock(
+        "DynamoDB.DocumentClient",
+        "scan",
+        (_params: ScanInput, callback: Function) => {
+          callback(null, { Items: [{ id: "test" }] });
+        }
+      );
+
+      const response = await getProject(
+        ({
+          pathParameters: { slug: "new-project" }
+        } as unknown) as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      );
+      expect(response).toEqual({
+        body: '{"id":"test"}',
+        headers: {
+          "Access-Control-Allow-Credentials": true,
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json"
+        },
+        statusCode: 200
+      });
+      AWSMock.restore("DynamoDB.DocumentClient");
+    });
+    test("no env variables", async () => {
+      process.env.DYNAMODB_TABLE = "";
+      const response = (await getProject(
+        {} as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      )) as APIGatewayProxyResult;
+      expect(response.statusCode).toBe(500);
+    });
+    test("no slug", async () => {
+      const response = await getProject(
+        ({} as unknown) as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      );
+      expect(response).toEqual({
+        body: '{"error":"Slug is missing from the url!"}',
+
+        statusCode: 400
+      });
+    });
+    test("not found", async () => {
+      AWSMock.mock(
+        "DynamoDB.DocumentClient",
+        "scan",
+        (_params: ScanInput, callback: Function) => {
+          callback(null, { Items: [] });
+        }
+      );
+
+      const response = await getProject(
+        ({
+          pathParameters: { slug: "new-project" }
+        } as unknown) as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      );
+      expect(response).toEqual({
+        body: '{"message":"Not found"}',
+
+        statusCode: 404
+      });
+      AWSMock.restore("DynamoDB.DocumentClient");
+    });
+    test("internal error", async () => {
+      AWSMock.mock("DynamoDB.DocumentClient", "scan", () => {
+        throw Error("test");
+      });
+
+      const response = await getProject(
+        ({
+          pathParameters: { slug: "new-project" }
+        } as unknown) as APIGatewayProxyEvent,
+        {} as Context,
+        () => {}
+      );
+      expect((response as APIGatewayProxyResult).statusCode).toBe(500);
+      AWSMock.restore("DynamoDB.DocumentClient");
+    });
   });
 });
