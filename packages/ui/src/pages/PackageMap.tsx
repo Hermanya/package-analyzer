@@ -122,7 +122,9 @@ export const PackageMap: React.FC<{}> = () => {
         <Spacer size={6} />
         <LabelGroup>
           {getLegend(getSelectedLens(query)).map(({ name, value: color }) => (
-            <Label bg={`${color}.4`}>{name}</Label>
+            <Label key={name} bg={`${color}.4`}>
+              {name}
+            </Label>
           ))}
         </LabelGroup>
       </Box>
